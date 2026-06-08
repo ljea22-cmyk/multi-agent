@@ -32,7 +32,16 @@
 - 성공 여부: 성공
 - 오류: 없음
 
+## 실행 출력 요약
+- 조건 추출: genre=RPG, platform=닌텐도, difficulty=쉬움, player=싱글
+- 게임 분류: 후보 게임 9개 발견
+- 완전 일치: 스타듀 밸리(4점), 포켓몬스터 스칼렛/바이올렛(4점)
+- 부분 일치: 젤다의 전설 야생의 숨결, 티어스 오브 더 킹덤 등
+- 저장 완료: output.md, output_user_guide.md, review_report.md
+
 ## 12주차에 고칠 점
-- [ ] 게임 DB 보강
+- [ ] 게임 DB 보강 (장르별 게임 추가)
 - [ ] output_user_guide.md 저장 기능 추가
 - [ ] 검토자 에이전트 추가
+- [ ] Groq API 연결
+- [ ] Streamlit 화면 추가

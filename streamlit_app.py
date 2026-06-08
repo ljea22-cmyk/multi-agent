@@ -99,7 +99,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("## 🕹️ 게임 조건 선택")
     st.markdown("---")
-    genre = st.selectbox("🎯 장르", ["RPG", "액션", "시뮬레이션", "어드벤처", "FPS", "샌드박스"])
+    genre = st.selectbox("🎯 장르", ["RPG", "액션", "시뮬레이션", "어드벤처", "FPS", "샌드박스", "전략", "레이싱", "격투"])
     platform = st.selectbox("🖥️ 플랫폼", ["닌텐도", "PC", "콘솔", "모바일"])
     difficulty = st.selectbox("⚡ 난이도", ["쉬움", "보통", "어려움"])
     player = st.selectbox("👥 플레이어", ["싱글", "멀티"])
@@ -178,14 +178,35 @@ if run:
                     """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
+
         with st.expander("📋 검토 보고서 보기"):
             with st.spinner("검토 중..."):
                 review = review_recommendations(matched)
             st.markdown(review)
+            st.download_button(
+                label="📥 검토 보고서 다운로드",
+                data=review,
+                file_name="review_report.txt",
+                mime="text/plain"
+            )
 
         with st.expander("📄 전체 추천 결과 보기"):
             result = write_recommendations(conditions, matched)
             st.markdown(result)
+            st.download_button(
+                label="📥 추천 결과 다운로드",
+                data=result,
+                file_name="output.txt",
+                mime="text/plain"
+            )
+
+        user_guide = write_user_guide(conditions, matched)
+        st.download_button(
+            label="📥 안내문 다운로드",
+            data=user_guide,
+            file_name="output_user_guide.txt",
+            mime="text/plain"
+        )
 
 else:
     st.markdown("""
