@@ -1,5 +1,5 @@
-# 게임 추천 에이전트 v1
-# 조건 추출 → 게임 분류 → 추천문 작성 → 파일 저장
+# 게임 추천 에이전트 v2
+# 조건 추출 → 게임 분류 → 추천문 작성 → 검토 → 파일 저장
 
 from pathlib import Path
 
@@ -200,6 +200,43 @@ def write_recommendations(conditions, matched):
     return "\n".join(result)
 
 
+def write_user_guide(conditions, matched):
+    """사용자 유형별 안내문을 작성한다."""
+    result = []
+    result.append("# 게임 추천 안내문\n")
+    result.append(f"## 조건: 장르={conditions['genre']}, 플랫폼={conditions['platform']}, 난이도={conditions['difficulty']}, 플레이어={conditions['player']}\n")
+
+    if not matched:
+        result.append("조건에 맞는 게임을 찾지 못했습니다. 조건을 바꿔서 다시 시도해보세요.")
+        return "\n".join(result)
+
+    # 완전 일치 게임
+    perfect = [g for g in matched if not g["warnings"]]
+    # 부분 일치 게임
+    partial = [g for g in matched if g["warnings"]]
+
+    if perfect:
+        result.append("## ✅ 조건 완전 일치 추천")
+        for game in perfect:
+            result.append(f"\n### {game['title']}")
+            result.append(f"{game['description']}")
+            result.append(f"- 일치 항목: {', '.join(game['reasons'])}")
+
+    if partial:
+        result.append("\n## ⚠️ 조건 부분 일치 추천 (참고용)")
+        for game in partial:
+            result.append(f"\n### {game['title']}")
+            result.append(f"{game['description']}")
+            result.append(f"- 일치 항목: {', '.join(game['reasons'])}")
+            result.append(f"- 주의사항: {', '.join(game['warnings'])}")
+
+    result.append("\n## 📌 주의사항")
+    result.append("- 위 추천은 입력 조건 기반이며, 실제 게임과 다를 수 있습니다.")
+    result.append("- 부분 일치 게임은 조건을 확인 후 선택하세요.")
+
+    return "\n".join(result)
+
+
 def review_recommendations(matched):
     """추천 결과를 검토한다."""
     issues = []
@@ -242,11 +279,16 @@ def main():
     result = write_recommendations(conditions, matched)
     print(result)
 
+    print("\n=== 사용자 안내문 작성 ===")
+    user_guide = write_user_guide(conditions, matched)
+    print(user_guide)
+
     print("\n=== 검토 ===")
     review = review_recommendations(matched)
     print(review)
 
     save_output(result, "output.md")
+    save_output(user_guide, "output_user_guide.md")
     save_output(review, "review_report.md")
 
 
