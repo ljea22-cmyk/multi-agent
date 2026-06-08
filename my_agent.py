@@ -1,7 +1,14 @@
-# 게임 추천 에이전트 v2
+# 게임 추천 에이전트 v3
 # 조건 추출 → 게임 분류 → 추천문 작성 → 검토 → 파일 저장
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+USE_LLM_REVIEW = True if GROQ_API_KEY else False
 
 SAMPLE_INPUT = """
 장르: RPG
@@ -134,7 +141,6 @@ def classify_games(conditions):
         reasons = []
         warnings = []
 
-        # 플랫폼 조건이 있으면 반드시 일치해야 함
         if conditions["platform"] and conditions["platform"] not in game["platform"]:
             continue
 
@@ -210,9 +216,7 @@ def write_user_guide(conditions, matched):
         result.append("조건에 맞는 게임을 찾지 못했습니다. 조건을 바꿔서 다시 시도해보세요.")
         return "\n".join(result)
 
-    # 완전 일치 게임
     perfect = [g for g in matched if not g["warnings"]]
-    # 부분 일치 게임
     partial = [g for g in matched if g["warnings"]]
 
     if perfect:
@@ -237,10 +241,9 @@ def write_user_guide(conditions, matched):
     return "\n".join(result)
 
 
-def review_recommendations(matched):
-    """추천 결과를 검토한다."""
+def review_with_rules(matched):
+    """규칙 기반 검토자."""
     issues = []
-
     for game in matched:
         if game["warnings"]:
             issues.append(f"- {game['title']}: {', '.join(game['warnings'])}")
@@ -255,6 +258,53 @@ def review_recommendations(matched):
         result.extend(issues)
 
     return "\n".join(result)
+
+
+def review_with_groq(matched):
+    """Groq API 기반 검토자."""
+    from groq import Groq
+
+    client = Groq(api_key=GROQ_API_KEY)
+
+    game_list = "\n".join([
+        f"- {g['title']}: 일치={', '.join(g['reasons'])}, 주의={', '.join(g['warnings']) if g['warnings'] else '없음'}"
+        for g in matched
+    ])
+
+    prompt = f"""다음은 게임 추천 결과입니다. 아래 기준으로 검토해줘.
+1. 입력 조건과 맞지 않는 항목이 있는가
+2. 사용자가 주의해야 할 점이 있는가
+3. 추천 결과가 적절한가
+
+추천 결과:
+{game_list}
+
+검토 결과를 한국어로 짧게 작성해줘."""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=500,
+    )
+
+    review_text = response.choices[0].message.content
+
+    result = []
+    result.append("# 검토 보고서 (Groq AI 검토)\n")
+    result.append(review_text)
+    return "\n".join(result)
+
+
+def review_recommendations(matched):
+    """검토자 에이전트. Groq API 실패 시 규칙 기반으로 fallback."""
+    if USE_LLM_REVIEW:
+        try:
+            print("Groq API로 검토 중...")
+            return review_with_groq(matched)
+        except Exception as e:
+            print(f"Groq API 실패: {e}, 규칙 기반 검토로 전환합니다.")
+            return review_with_rules(matched)
+    return review_with_rules(matched)
 
 
 def save_output(content, path):
