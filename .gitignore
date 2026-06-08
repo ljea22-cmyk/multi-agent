@@ -3,4 +3,4 @@ __pycache__/
 *.pyc
 .env
 output/
-logs/
+logs/search_history.json
