@@ -3,9 +3,9 @@
 이 파일은 GitHub Copilot, Gemini CLI, Antigravity에서 공통으로 참고할 프로젝트 규칙이다.
 
 ## 프로젝트
-- 이름: 일정공지 에이전트
-- 기본 실행: `python schedule_agent.py`
-- 기본 작업 파일: `schedule_agent.py`
+- 이름: 게임 추천 에이전트
+- 기본 실행: `python my_agent.py`
+- 기본 작업 파일: `my_agent.py`
 
 ## 작업 방식
 1. 파일을 수정하기 전에 먼저 계획을 제시한다.
@@ -17,4 +17,4 @@
 - 불필요한 패키지 설치
 - API 키 하드코딩
 - 복잡한 프레임워크 임의 추가
-- Playwright MCP 연결
+- LangGraph, RAG, 데이터베이스 사용 (14주차 전까지)
