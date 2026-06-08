@@ -1,4 +1,7 @@
 import streamlit as st
+import json
+from pathlib import Path
+from datetime import datetime
 from my_agent import extract_conditions, classify_games, write_recommendations, write_user_guide, review_recommendations
 
 st.set_page_config(
@@ -80,6 +83,14 @@ st.markdown("""
         font-weight: 700;
         margin: 0;
     }
+    .history-card {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 5px 0;
+        font-size: 0.85em;
+    }
     div[data-testid="stSidebar"] {
         background-color: #E4000F;
     }
@@ -89,6 +100,33 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# 히스토리 파일
+HISTORY_FILE = Path("search_history.json")
+
+def load_history():
+    if HISTORY_FILE.exists():
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+def save_history(history):
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+
+def add_history(conditions, result_count):
+    history = load_history()
+    history.insert(0, {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "genre": conditions["genre"],
+        "platform": conditions["platform"],
+        "difficulty": conditions["difficulty"],
+        "player": conditions["player"],
+        "result_count": result_count,
+    })
+    history = history[:20]  # 최근 20개만 저장
+    save_history(history)
+
+# 헤더
 st.markdown("""
 <div class="main-header">
     <h1>🎮 게임 추천 에이전트</h1>
@@ -105,6 +143,22 @@ with st.sidebar:
     player = st.selectbox("👥 플레이어", ["싱글", "멀티"])
     st.markdown("---")
     run = st.button("🔍 추천받기", use_container_width=True)
+    st.markdown("---")
+
+    # 히스토리
+    st.markdown("## 📋 최근 검색")
+    history = load_history()
+    if history:
+        for h in history[:5]:
+            st.markdown(f"""
+            <div style="background:rgba(255,255,255,0.2); border-radius:8px; padding:6px; margin:4px 0; font-size:0.8em;">
+                🕐 {h['time']}<br>
+                {h['genre']} / {h['platform']} / {h['difficulty']}<br>
+                결과: {h['result_count']}개
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.markdown("<p style='font-size:0.85em;'>아직 검색 기록이 없습니다</p>", unsafe_allow_html=True)
 
 if run:
     input_text = f"""
@@ -115,6 +169,9 @@ if run:
 """
     conditions = extract_conditions(input_text)
     matched = classify_games(conditions)
+
+    # 히스토리 저장
+    add_history(conditions, len(matched))
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -207,6 +264,30 @@ if run:
             file_name="output_user_guide.txt",
             mime="text/plain"
         )
+
+        # 통계
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.expander("📊 검색 통계 보기"):
+            history = load_history()
+            if len(history) > 1:
+                st.markdown("### 최근 검색 통계")
+                genre_counts = {}
+                platform_counts = {}
+                for h in history:
+                    genre_counts[h["genre"]] = genre_counts.get(h["genre"], 0) + 1
+                    platform_counts[h["platform"]] = platform_counts.get(h["platform"], 0) + 1
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**장르별 검색 횟수**")
+                    for g, c in sorted(genre_counts.items(), key=lambda x: -x[1]):
+                        st.markdown(f"- {g}: {c}회")
+                with col2:
+                    st.markdown("**플랫폼별 검색 횟수**")
+                    for p, c in sorted(platform_counts.items(), key=lambda x: -x[1]):
+                        st.markdown(f"- {p}: {c}회")
+            else:
+                st.info("검색을 더 해보면 통계가 나타납니다!")
 
 else:
     st.markdown("""
