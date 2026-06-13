@@ -1,5 +1,77 @@
 [
   {
+    "time": "2026-06-13 17:34",
+    "genre": "RPG",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 17:32",
+    "genre": "RPG",
+    "platform": "PC",
+    "difficulty": "보통",
+    "player": "싱글",
+    "result_count": 10
+  },
+  {
+    "time": "2026-06-13 17:30",
+    "genre": "RPG",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 17:19",
+    "genre": "RPG",
+    "platform": "PC",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 9
+  },
+  {
+    "time": "2026-06-13 17:18",
+    "genre": "시뮬레이션",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 17:07",
+    "genre": "어드벤처",
+    "platform": "닌텐도",
+    "difficulty": "보통",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 17:02",
+    "genre": "RPG",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 17:00",
+    "genre": "RPG",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
+    "time": "2026-06-13 16:58",
+    "genre": "RPG",
+    "platform": "닌텐도",
+    "difficulty": "쉬움",
+    "player": "싱글",
+    "result_count": 18
+  },
+  {
     "time": "2026-06-08 18:24",
     "genre": "RPG",
     "platform": "콘솔",
